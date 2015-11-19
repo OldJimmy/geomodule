@@ -1,0 +1,28 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package de.loercher.geomodule.connector;
+
+import java.util.List;
+
+/**
+ *
+ * @author Jimmy
+ * @param <T>
+ */
+public interface ArticleEntityMapper<T>
+{
+    public T mapFromArticleEntity(ArticleEntity entity);
+    public ArticleEntity mapToArticleEntity(T sourceInstance);
+    public List<ArticleEntity> mapToArticleEntityList(List<T> srcList);
+    
+    public static final String AUTHORTAG = "author";
+    public static final String CONTENTTAG = "content";
+    public static final String PICTURETAG = "picture";
+    public static final String SHORTTAG = "short";
+    public static final String TIMESTAMPTAG = "timestamp";
+    public static final String TITLETAG = "title";
+    public static final String REFERENCETAG = "reference";
+}
