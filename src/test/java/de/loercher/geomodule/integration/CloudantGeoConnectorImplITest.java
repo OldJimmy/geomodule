@@ -14,6 +14,8 @@ import de.loercher.geomodule.commons.SecurityHelper;
 import de.loercher.geomodule.commons.exception.ArticleConflictException;
 import de.loercher.geomodule.commons.exception.ArticleNotFoundException;
 import de.loercher.geomodule.commons.exception.GeneralCommunicationException;
+import de.loercher.geomodule.commons.exception.RevisionPreconditionFailedException;
+import de.loercher.geomodule.connector.IdentifiedArticleEntity;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -63,7 +65,6 @@ public class CloudantGeoConnectorImplITest
 	Long stamp = now.getTime();
 
 	ArticleEntity entity = new ArticleEntity.ArticleEntityBuilder()
-		.id(id)
 		.coordinate(FRANKFURT)
 		.author(author)
 		.content(content)
@@ -75,7 +76,7 @@ public class CloudantGeoConnectorImplITest
 
 	try
 	{
-	    connector.saveArticle(entity);
+	    connector.saveArticle(entity, id);
 	} catch (ArticleConflictException ex)
 	{
 	    /*
@@ -86,10 +87,12 @@ public class CloudantGeoConnectorImplITest
 	    fail("There was a general exception");
 	}
 
-	ArticleEntity result = null;
+	IdentifiedArticleEntity result = null;
+	ArticleEntity resultEntity = null;
 	try
 	{
 	    result = connector.getArticle(id);
+	    resultEntity = result.getEntity();
 	} catch (ArticleNotFoundException ex)
 	{
 	    fail("Article not found.");
@@ -100,13 +103,56 @@ public class CloudantGeoConnectorImplITest
 
 	assertNotNull("Entity either wasn't inserted correctly or couldn't be retrieved correctly. ID: " + id, result);
 
-	assertEquals("Author has changed!", author, result.getAuthor());
-	assertEquals("Content has changed!", content, result.getContentURL());
-	assertEquals("Picture has changed!", picture, result.getPictureURL());
-	assertEquals("Short text has changed!", shortTitle, result.getShortTitle());
-	assertEquals("Title has changed!", title, result.getTitle());
-	assertEquals("Coordinates have changed!", FRANKFURT, result.getCoord());
-	assertEquals("Reference should match id!", id, result.getReference());
+	assertEquals("Author has changed!", author, resultEntity.getAuthor());
+	assertEquals("Content has changed!", content, resultEntity.getContentURL());
+	assertEquals("Picture has changed!", picture, resultEntity.getPictureURL());
+	assertEquals("Short text has changed!", shortTitle, resultEntity.getShortTitle());
+	assertEquals("Title has changed!", title, resultEntity.getTitle());
+	assertEquals("Coordinates have changed!", FRANKFURT, resultEntity.getCoord());
+	assertEquals("Reference should match id!", id, resultEntity.getReference());
+	
+	/**
+	 * Check if duplicate is detected using saveArticle
+	 */
+	System.out.println("UUID zu testUpdateNotExistingArticle: " + id);
+
+	ArticleEntity newEntity = new ArticleEntity.ArticleEntityBuilder().build();
+
+	try
+	{
+	    connector.saveArticle(newEntity, id);
+	    fail("The article should not have been successfully saved in testUpdateNotExistingArticle.");
+	} catch (ArticleConflictException ex)
+	{
+	} catch (GeneralCommunicationException ex)
+	{
+	    fail("There happend an GeneralCommunication exception!");
+	}
+	
+	/**
+	 * Check if wrong revision number is detected
+	 */
+	// well formed cloudant revision number
+	String revision = "1-87a130b51cc32a84a6405c47c76c8713";
+	
+	/**
+	 * Check if update with not available article id gets the expected exception
+	 */
+	ArticleEntity secondEntity = new ArticleEntity.ArticleEntityBuilder()
+		.coordinate(BERLIN)
+		.build();
+	
+	try
+	{
+	    connector.updateArticle(secondEntity, id, revision);
+	    fail("There should have been an RevisionPreconditionFailedException!");
+	} catch (RevisionPreconditionFailedException ex)
+	{
+	} catch (GeneralCommunicationException ex)
+	{
+	    System.out.println("INSERTEXC:" + ex);
+	    fail("There should have been an RevisionPreconditionFailedException but was GeneralCommunicationException!");
+	}
     }
 
     @Test
@@ -124,7 +170,6 @@ public class CloudantGeoConnectorImplITest
 	Long stamp = now.getTime();
 
 	ArticleEntity entity = new ArticleEntity.ArticleEntityBuilder()
-		.id(id)
 		.coordinate(BERLIN)
 		.picture(picture)
 		.shortTitle(shortTitle)
@@ -135,7 +180,7 @@ public class CloudantGeoConnectorImplITest
 
 	try
 	{
-	    connector.saveArticle(entity);
+	    connector.saveArticle(entity, id);
 	} catch (ArticleConflictException ex)
 	{
 	    /*
@@ -149,7 +194,7 @@ public class CloudantGeoConnectorImplITest
 	ArticleEntity result = null;
 	try
 	{
-	    result = connector.getArticle(id);
+	    result = connector.getArticle(id).getEntity();
 	} catch (ArticleNotFoundException ex)
 	{
 	    fail("Article not found.");
@@ -182,7 +227,6 @@ public class CloudantGeoConnectorImplITest
 	Long stamp = now.getTime();
 
 	ArticleEntity entity = new ArticleEntity.ArticleEntityBuilder()
-		.id(id)
 		.coordinate(STUTTGART)
 		.picture(picture)
 		.shortTitle(shortTitle)
@@ -192,7 +236,7 @@ public class CloudantGeoConnectorImplITest
 
 	try
 	{
-	    connector.saveArticle(entity);
+	    connector.saveArticle(entity, id);
 	} catch (ArticleConflictException ex)
 	{
 	    /*
@@ -211,12 +255,12 @@ public class CloudantGeoConnectorImplITest
 
 	 the tolerance in this scenario shouldn't be above 100 meter (nearly 1%).
 	 */
-	List<ArticleEntity> result = null;
+	List<IdentifiedArticleEntity> result = null;
 	try
 	{
 	    result = connector.getArticlesNear(LUDWIGSBURG, 12100);
 
-	    for (ArticleEntity article : result)
+	    for (IdentifiedArticleEntity article : result)
 	    {
 		if (article.getId().equals(id))
 		{
@@ -224,7 +268,7 @@ public class CloudantGeoConnectorImplITest
 		}
 	    }
 
-	    assertFalse(found);
+	    assertFalse("Entry shouldn't have been found in testNearMethod!", found);
 	} catch (GeneralCommunicationException ex)
 	{
 	    fail("There was a general exception");
@@ -235,7 +279,7 @@ public class CloudantGeoConnectorImplITest
 	    result = connector.getArticlesNear(LUDWIGSBURG, 11900);
 	    found = false;
 
-	    for (ArticleEntity article : result)
+	    for (IdentifiedArticleEntity article : result)
 	    {
 		if (article.getId().equals(id))
 		{
@@ -243,11 +287,36 @@ public class CloudantGeoConnectorImplITest
 		}
 	    }
 
-	    assertTrue(found);
+	    assertTrue("Entry shouldn't have been found in testNearMethod!", found);
 	} catch (GeneralCommunicationException ex)
 	{
 	    fail("There was a general exception");
 	}
     }
 
+    @Test
+    public void testUpdateExceptions()
+    {
+	String id = "belasdfons";
+	// well formed cloudant revision number
+	String revision = "1-87a130b51cc32a84a6405c47c76c8713";
+	
+	/**
+	 * Check if update with not available article id gets the expected exception
+	 */
+	ArticleEntity entity = new ArticleEntity.ArticleEntityBuilder()
+		.coordinate(BERLIN)
+		.build();
+	
+	try
+	{
+	    connector.updateArticle(entity, id, revision);
+	    fail("There should have been an RevisionPreconditionFailedException because article not existing already!");
+	} catch (RevisionPreconditionFailedException ex)
+	{
+	} catch (GeneralCommunicationException ex)
+	{
+	    fail("There should have been an RevisionPreconditionFailedException because article not existing already, but ther was a GeneralCommunicationException!");
+	}
+    }
 }

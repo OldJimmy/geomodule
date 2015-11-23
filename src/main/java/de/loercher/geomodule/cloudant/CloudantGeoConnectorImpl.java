@@ -20,6 +20,7 @@ import de.loercher.geomodule.commons.exception.ArticleNotFoundException;
 import de.loercher.geomodule.commons.exception.GeneralCommunicationException;
 import de.loercher.geomodule.commons.exception.RevisionPreconditionFailedException;
 import de.loercher.geomodule.connector.ArticleIdentifier;
+import de.loercher.geomodule.connector.IdentifiedArticleEntity;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -99,10 +100,11 @@ public class CloudantGeoConnectorImpl implements GeoConnector
     }
 
     @Override
-    public ArticleIdentifier saveArticle(ArticleEntity article) throws ArticleConflictException, GeneralCommunicationException
+    public ArticleIdentifier saveArticle(ArticleEntity article, String pId) throws ArticleConflictException, GeneralCommunicationException
     {
 	CloudantArticleEntity entity = mapper.mapFromArticleEntity(article);
 	entity.setRev(null);
+	entity.setId(pId);
 
 	Response resp;
 	try
@@ -134,9 +136,9 @@ public class CloudantGeoConnectorImpl implements GeoConnector
 	try
 	{
 	    db.update(entity);
-	} catch (PreconditionFailedException ex)
+	} catch (DocumentConflictException | PreconditionFailedException ex)
 	{
-	    RevisionPreconditionFailedException e = new RevisionPreconditionFailedException("Revision of article " + pId + " is: " + pRevision + " but should have another value! ", ex);
+	    RevisionPreconditionFailedException e = new RevisionPreconditionFailedException("Revision of article " + pId + " is: " + pRevision + " but should have had another value! ", ex);
 	    log.warn(e.getLoggingString());
 	    throw e;
 	} catch (CouchDbException ex)
@@ -151,7 +153,7 @@ public class CloudantGeoConnectorImpl implements GeoConnector
     }
 
     @Override
-    public ArticleEntity getArticle(String id) throws ArticleNotFoundException, GeneralCommunicationException
+    public IdentifiedArticleEntity getArticle(String id) throws ArticleNotFoundException, GeneralCommunicationException
     {
 	CloudantArticleEntity entity;
 	try
@@ -172,8 +174,9 @@ public class CloudantGeoConnectorImpl implements GeoConnector
 	return mapper.mapToArticleEntity(entity);
     }
 
+    // TODO: Performance optimization throug JsonWriter (Stream handling) instead of operating on fully materialized stream
     @Override
-    public List<ArticleEntity> getArticlesNear(Coordinate coordinates, Integer radiusInMeter) throws GeneralCommunicationException
+    public List<IdentifiedArticleEntity> getArticlesNear(Coordinate coordinates, Integer radiusInMeter) throws GeneralCommunicationException
     {
 	Double latitude = coordinates.getLatitude();
 	Double longitude = coordinates.getLongitude();

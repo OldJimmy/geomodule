@@ -15,8 +15,8 @@ import java.util.List;
 public interface ArticleEntityMapper<T>
 {
     public T mapFromArticleEntity(ArticleEntity entity);
-    public ArticleEntity mapToArticleEntity(T sourceInstance);
-    public List<ArticleEntity> mapToArticleEntityList(List<T> srcList);
+    public IdentifiedArticleEntity mapToArticleEntity(T sourceInstance);
+    public List<IdentifiedArticleEntity> mapToArticleEntityList(List<T> srcList);
     
     public static final String AUTHORTAG = "author";
     public static final String CONTENTTAG = "content";

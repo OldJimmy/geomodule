@@ -17,6 +17,7 @@ import de.loercher.geomodule.connector.ArticleEntity;
 import de.loercher.geomodule.commons.Coordinate;
 import de.loercher.geomodule.commons.GeoModuleProperties;
 import de.loercher.geomodule.commons.SecurityHelper;
+import de.loercher.geomodule.connector.IdentifiedArticleEntity;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -108,7 +109,6 @@ public class CloudantConnectionITest
 	Timestamp now = new Timestamp(new Date().getTime());
 	
 	ArticleEntity entity = new ArticleEntity.ArticleEntityBuilder()
-		.id(id)
 		.author("alf")
 		.content("eins")
 		.picture("zwei")
@@ -116,8 +116,11 @@ public class CloudantConnectionITest
 		.timestamp(now.getTime())
 		.title("title")
 		.build();
+	
+	IdentifiedArticleEntity store = new IdentifiedArticleEntity(id);
+	store.setEntity(entity);
 						   
-	Response resp = db.save(entity);
+	Response resp = db.save(store);
 	db.remove(resp.getId(), resp.getRev());
     }
 
@@ -129,7 +132,6 @@ public class CloudantConnectionITest
 	Timestamp now = new Timestamp(new Date().getTime());
 	
 	ArticleEntity entity = new ArticleEntity.ArticleEntityBuilder()
-		.id(id)
 		.coordinate(new Coordinate(new Double(9.84), new Double(49.18)))
 		.author("ich")
 		.content("geo")
@@ -142,6 +144,7 @@ public class CloudantConnectionITest
 //	9.856485,
 //      49.178897
 	CloudantArticleEntity cloudantEntity = new CloudantArticleEntityMapperImpl().mapFromArticleEntity(entity);
+	cloudantEntity.setId(id);
 	
 	Response resp = db.save(cloudantEntity);
     }

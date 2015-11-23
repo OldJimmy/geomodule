@@ -14,9 +14,6 @@ import de.loercher.geomodule.commons.Coordinate;
 public class ArticleEntity
 {
 
-    private String _id;
-    private String _rev = null;
-    
     /*
 	Possible future enhancement:
 	If there are multiple coordinates of one article they share the same referenceID
@@ -35,17 +32,47 @@ public class ArticleEntity
     private ArticleEntity()
     {
     }
-    
-    public String getId()
+
+    public void setReferenceID(String referenceID)
     {
-	return _id;
-    }
-    
-    public String getRev()
-    {
-	return _rev;
+	this.referenceID = referenceID;
     }
 
+    public void setPictureURL(String pictureURL)
+    {
+	this.pictureURL = pictureURL;
+    }
+
+    public void setAuthor(String author)
+    {
+	this.author = author;
+    }
+
+    public void setTitle(String title)
+    {
+	this.title = title;
+    }
+
+    public void setShortTitle(String shortTitle)
+    {
+	this.shortTitle = shortTitle;
+    }
+
+    public void setContentURL(String contentURL)
+    {
+	this.contentURL = contentURL;
+    }
+
+    public void setTimestampOfPressEntry(Long timestampOfPressEntry)
+    {
+	this.timestampOfPressEntry = timestampOfPressEntry;
+    }
+
+    public void setCoord(Coordinate coord)
+    {
+	this.coord = coord;
+    }
+    
     public String getReference()
     {
 	return referenceID;
@@ -96,24 +123,6 @@ public class ArticleEntity
 	    article = new ArticleEntity();
 	}
 
-	public ArticleEntityBuilder id(String pId)
-	{
-	    article._id = pId;
-	    
-	    if (article.referenceID == null)
-	    {
-		article.referenceID = pId;
-	    }
-	    
-	    return this;
-	}
-
-	public ArticleEntityBuilder rev(String pRev)
-	{
-	    article._rev = pRev;
-	    return this;
-	}
-	
 	public ArticleEntityBuilder reference(String pReference)
 	{
 	    article.referenceID = pReference;

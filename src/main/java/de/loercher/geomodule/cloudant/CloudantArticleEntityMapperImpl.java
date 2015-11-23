@@ -8,6 +8,7 @@ package de.loercher.geomodule.cloudant;
 import de.loercher.geomodule.connector.ArticleEntity;
 import de.loercher.geomodule.connector.ArticleEntityMapper;
 import de.loercher.geomodule.commons.Coordinate;
+import de.loercher.geomodule.connector.IdentifiedArticleEntity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,31 +20,32 @@ import java.util.Map;
  */
 public class CloudantArticleEntityMapperImpl implements ArticleEntityMapper<CloudantArticleEntity>
 {
+
     @Override
     public CloudantArticleEntity mapFromArticleEntity(ArticleEntity entity)
     {
 	CloudantArticleEntity cloudantEntity = new CloudantArticleEntity();
-	cloudantEntity.setId(entity.getId());
-	cloudantEntity.setRev(entity.getRev());
 
 	/*
-	    GeoJSON format dictates that the coordinates have to be represented using (longitude, latitude)
-	    --- against common human usage
-	*/
-	List<Double> coords = new ArrayList<>();
-	coords.add(entity.getCoord().getLongitude());
-	coords.add(entity.getCoord().getLatitude());
-	
-	assert(coords.get(1).equals(entity.getCoord().getLatitude()) );
-	assert(coords.get(0).equals(entity.getCoord().getLongitude()) );
-	
-	Geometry geo = new Geometry();
-	geo.setCoordinates(coords);
-	geo.setType("Point");
-	
-	cloudantEntity.setGeometry(geo);
-	cloudantEntity.setType("Feature");
-	
+	 GeoJSON format dictates that the coordinates have to be represented using (longitude, latitude)
+	 --- against common human usage
+	 */
+	if (entity.getCoord() != null)
+	{
+	    List<Double> coords = new ArrayList<>();
+	    coords.add(entity.getCoord().getLongitude());
+	    coords.add(entity.getCoord().getLatitude());
+
+	    assert (coords.get(1).equals(entity.getCoord().getLatitude()));
+	    assert (coords.get(0).equals(entity.getCoord().getLongitude()));
+
+	    Geometry geo = new Geometry();
+	    geo.setCoordinates(coords);
+	    geo.setType("Point");
+	    cloudantEntity.setGeometry(geo);
+	    cloudantEntity.setType("Feature");
+	}
+
 	Map<String, Object> properties = new HashMap<>();
 	properties.put(AUTHORTAG, entity.getAuthor());
 	properties.put(CONTENTTAG, entity.getContentURL());
@@ -52,49 +54,57 @@ public class CloudantArticleEntityMapperImpl implements ArticleEntityMapper<Clou
 	properties.put(TIMESTAMPTAG, entity.getTimestampOfPressEntry());
 	properties.put(TITLETAG, entity.getTitle());
 	properties.put(REFERENCETAG, entity.getReference());
-	
+
 	cloudantEntity.setProperties(properties);
-	
+
 	return cloudantEntity;
     }
 
     @Override
-    public ArticleEntity mapToArticleEntity(CloudantArticleEntity src)
+    public IdentifiedArticleEntity mapToArticleEntity(CloudantArticleEntity src)
     {
 	Map<String, Object> props = src.getProperties();
 	/*
-	    GeoJSON format dictates that the coordinates have to be represented using (longitude, latitude)
-	    --- against common human usage
-	*/
+	 GeoJSON format dictates that the coordinates have to be represented using (longitude, latitude)
+	 --- against common human usage
+	 */
 	Coordinate targetCoord = new Coordinate(src.getGeometry().getCoordinates().get(1), src.getGeometry().getCoordinates().get(0));
-	
-	Long timestamp = ((Double) props.get(TIMESTAMPTAG)).longValue();
-	
+
+	Long timestamp;
+	if (props.get(TIMESTAMPTAG) == null)
+	{
+	    timestamp = null;
+	} else
+	{
+	    timestamp = ((Double) props.get(TIMESTAMPTAG)).longValue();
+	}
+
 	ArticleEntity.ArticleEntityBuilder builder = new ArticleEntity.ArticleEntityBuilder();
-	ArticleEntity result = builder.author( (String) props.get(AUTHORTAG))
+	ArticleEntity resultEntity = builder.author((String) props.get(AUTHORTAG))
 		.content((String) props.get(CONTENTTAG))
 		.picture((String) props.get(PICTURETAG))
-		.reference( (String) props.get(REFERENCETAG))
-		.shortTitle( (String) props.get(SHORTTAG))
-		.title( (String) props.get(TITLETAG))
-		.timestamp( timestamp )
-		.rev(src.getRev())
-		.id(src.getId())
+		.reference((String) props.get(REFERENCETAG))
+		.shortTitle((String) props.get(SHORTTAG))
+		.title((String) props.get(TITLETAG))
+		.timestamp(timestamp)
 		.coordinate(targetCoord)
 		.build();
+
+	IdentifiedArticleEntity result = new IdentifiedArticleEntity(src.getId(), src.getRev());
+	result.setEntity(resultEntity);
 
 	return result;
     }
 
     @Override
-    public List<ArticleEntity> mapToArticleEntityList(List<CloudantArticleEntity> srcList)
+    public List<IdentifiedArticleEntity> mapToArticleEntityList(List<CloudantArticleEntity> srcList)
     {
-	List<ArticleEntity> result = new ArrayList<>();
+	List<IdentifiedArticleEntity> result = new ArrayList<>();
 	for (CloudantArticleEntity entity : srcList)
 	{
 	    result.add(mapToArticleEntity(entity));
 	}
-	
+
 	return result;
     }
 }

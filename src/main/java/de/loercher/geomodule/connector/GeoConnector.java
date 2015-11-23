@@ -23,9 +23,9 @@ public interface GeoConnector
 
     public ArticleIdentifier updateArticle(ArticleEntity article, String id, String revision) throws RevisionPreconditionFailedException, GeneralCommunicationException;
 
-    public ArticleIdentifier saveArticle(ArticleEntity article) throws ArticleConflictException, GeneralCommunicationException;
+    public ArticleIdentifier saveArticle(ArticleEntity article, String id) throws ArticleConflictException, GeneralCommunicationException;
 
-    public ArticleEntity getArticle(String id) throws ArticleNotFoundException, GeneralCommunicationException;
+    public IdentifiedArticleEntity getArticle(String id) throws ArticleNotFoundException, GeneralCommunicationException;
 
-    public List<ArticleEntity> getArticlesNear(Coordinate coordinates, Integer radiusInMeter) throws GeneralCommunicationException;
+    public List<IdentifiedArticleEntity> getArticlesNear(Coordinate coordinates, Integer radiusInMeter) throws GeneralCommunicationException;
 }
