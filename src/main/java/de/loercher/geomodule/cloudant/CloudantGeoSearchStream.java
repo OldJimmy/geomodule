@@ -40,6 +40,7 @@ public class CloudantGeoSearchStream
 
     private final CloudantClient client;
     private List<CloudantArticleEntity> bufferedEntities = new ArrayList<>();
+    private List<String> alreadyAvailableIds = new ArrayList<>();
 
     public CloudantGeoSearchStream(String pBaseURL, Coordinate pCoordinates, Integer pRadiusInMeter, CloudantClient pClient)
     {
@@ -68,6 +69,7 @@ public class CloudantGeoSearchStream
 	}
 
 	String url = urlBuilder.toString();
+	log.info("fetchNextResponse URL: " + url);
 
 	HttpRequestBase requestBase = new HttpGet(url);
 	HttpResponse response = client.executeRequest(requestBase);
@@ -76,11 +78,9 @@ public class CloudantGeoSearchStream
 	return new BufferedReader(new InputStreamReader(entity.getContent()));
     }
 
-    private List<CloudantArticleEntity> extractEntities(BufferedReader bufferedReader) throws JSONParseException
+    private void extractEntities(BufferedReader bufferedReader) throws JSONParseException
     {
 	JsonReader reader = new JsonReader(bufferedReader);
-	List<CloudantArticleEntity> entities = new ArrayList<>();
-
 	try
 	{
 	    reader.beginObject();
@@ -92,13 +92,13 @@ public class CloudantGeoSearchStream
 		if ("bookmark".equals(arrayName))
 		{
 		    bookmark = reader.nextString();
-		} else
+		} else if (!("features".equals(arrayName)))
 		{
 		    reader.skipValue();
 		}
 	    }
 
-	    if (arrayName != null)
+	    if ("features".equals(arrayName))
 	    {
 		reader.beginArray();
 
@@ -106,7 +106,14 @@ public class CloudantGeoSearchStream
 		{
 		    Gson gson = new Gson();
 		    CloudantArticleEntity entity = gson.fromJson(reader, CloudantArticleEntity.class);
-		    bufferedEntities.add(entity);
+		    
+		    // Duplicates should not be returned
+		    if (!(alreadyAvailableIds.contains(entity.getId())))
+		    {
+			bufferedEntities.add(entity);
+		    }
+		    
+		    alreadyAvailableIds.add(entity.getId());
 		}
 
 		reader.endArray();
@@ -124,8 +131,6 @@ public class CloudantGeoSearchStream
 	    log.error(e.getLoggingString());
 	    throw e;
 	}
-
-	return entities;
     }
 
     public CloudantArticleEntity nextArticle() throws JSONParseException, IOException
@@ -136,16 +141,16 @@ public class CloudantGeoSearchStream
 	    if (bufferedEntities.isEmpty())
 	    {
 		BufferedReader buffer = fetchNextResponse();
-		bufferedEntities = extractEntities(buffer);
+		extractEntities(buffer);
 
 		if (bufferedEntities.isEmpty())
 		{
 		    hasNext = false;
 		    return null;
 		}
-
-		return bufferedEntities.remove(0);
 	    }
+
+	    return bufferedEntities.remove(0);
 	}
 
 	return null;
@@ -162,7 +167,7 @@ public class CloudantGeoSearchStream
 	if (bufferedEntities.isEmpty())
 	{
 	    BufferedReader buffer = fetchNextResponse();
-	    bufferedEntities = extractEntities(buffer);
+	    extractEntities(buffer);
 
 	    if (bufferedEntities.isEmpty())
 	    {

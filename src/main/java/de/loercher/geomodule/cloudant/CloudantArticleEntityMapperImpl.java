@@ -119,6 +119,6 @@ public class CloudantArticleEntityMapperImpl implements ArticleEntityMapper<Clou
 	    result.add(mapToArticleEntity(stream.nextArticle()));
 	}
 	
-	return null;
+	return result;
     }
 }

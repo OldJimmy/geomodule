@@ -329,4 +329,36 @@ public class CloudantGeoConnectorImplITest
 	    fail("There should have been an RevisionPreconditionFailedException because article not existing already, but ther was a GeneralCommunicationException!");
 	}
     }
+    
+    /* TODO: Write test to check recatching policy 
+    
+	Technically this test isn't correct since the meaning of limit isn't handled as expected but as by cloudant interpreted.
+	Also the points have to be available - should not be a presumption. The count of points has to match exactly.
+    
+	There is also another issue that the recatching mechanism (wrongly) fetches one point twofold
+    */
+    @Test
+    public void testArticlesNearRecatchingPolicy()
+    {
+	List<IdentifiedArticleEntity> result = null;
+	
+	Coordinate coord = new Coordinate(48.996225, 8.412880);
+	
+	try
+	{
+	    result = connector.getArticlesNear(coord, 107000, 1);
+
+	    assertEquals("There have to be exactly 6 points!", 6, result.size());
+	} catch (TooManyResultsException ex)
+	{
+	    fail("There was a TooManyResultsException");
+	} catch (GeneralCommunicationException ex)
+	{
+	    fail("There was a general exception");
+	}
+
+    }
+    
+    
+    // TODO: Write test to check LIMIT
 }
