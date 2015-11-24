@@ -8,7 +8,10 @@ package de.loercher.geomodule.cloudant;
 import de.loercher.geomodule.connector.ArticleEntity;
 import de.loercher.geomodule.connector.ArticleEntityMapper;
 import de.loercher.geomodule.commons.Coordinate;
+import de.loercher.geomodule.commons.exception.GeneralCommunicationException;
+import de.loercher.geomodule.commons.exception.JSONParseException;
 import de.loercher.geomodule.connector.IdentifiedArticleEntity;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,5 +109,16 @@ public class CloudantArticleEntityMapperImpl implements ArticleEntityMapper<Clou
 	}
 
 	return result;
+    }
+    
+    public List<IdentifiedArticleEntity> mapToArticleEntityList(CloudantGeoSearchStream stream) throws IOException, GeneralCommunicationException, JSONParseException
+    {
+	List<IdentifiedArticleEntity> result = new ArrayList<>();
+	while (stream.hasNext())
+	{
+	    result.add(mapToArticleEntity(stream.nextArticle()));
+	}
+	
+	return null;
     }
 }

@@ -18,7 +18,9 @@ import de.loercher.geomodule.commons.GeoModuleProperties;
 import de.loercher.geomodule.commons.exception.ArticleConflictException;
 import de.loercher.geomodule.commons.exception.ArticleNotFoundException;
 import de.loercher.geomodule.commons.exception.GeneralCommunicationException;
+import de.loercher.geomodule.commons.exception.JSONParseException;
 import de.loercher.geomodule.commons.exception.RevisionPreconditionFailedException;
+import de.loercher.geomodule.commons.exception.TooManyResultsException;
 import de.loercher.geomodule.connector.ArticleIdentifier;
 import de.loercher.geomodule.connector.IdentifiedArticleEntity;
 import java.io.BufferedReader;
@@ -27,6 +29,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -49,7 +52,9 @@ public class CloudantGeoConnectorImpl implements GeoConnector
 
     public final static String BASE_URL_KEY_NAME = "geoCloudantUrl";
     public final static String DB_NAME = "localpress";
-
+    
+    private final Integer LIMIT = 200;
+    
     private final CloudantClient client;
     private final Database db;
     private final GeoModuleProperties properties;
@@ -174,58 +179,35 @@ public class CloudantGeoConnectorImpl implements GeoConnector
 	return mapper.mapToArticleEntity(entity);
     }
 
-    // TODO: Performance optimization throug JsonWriter (Stream handling) instead of operating on fully materialized stream
     @Override
-    public List<IdentifiedArticleEntity> getArticlesNear(Coordinate coordinates, Integer radiusInMeter) throws GeneralCommunicationException
+    public List<IdentifiedArticleEntity> getArticlesNear(Coordinate coordinates, Integer radiusInMeter, Integer maxArticleCount) throws GeneralCommunicationException, TooManyResultsException
     {
-	Double latitude = coordinates.getLatitude();
-	Double longitude = coordinates.getLongitude();
-
-	StringBuilder builder = new StringBuilder();
-	String url = builder.append(baseURL)
-		.append("?lat=").append(latitude)
-		.append("&lon=").append(longitude)
-		.append("&radius=").append(radiusInMeter)
-		.append("&format=geojson&include_docs=true&relation=contains").toString();
-
-	HttpRequestBase requestBase = new HttpGet(url);
-
-	HttpResponse response = client.executeRequest(requestBase);
-
-	HttpEntity entity = response.getEntity();
-	String alles;
-	try (BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent())))
+	if ( (maxArticleCount == null) || (maxArticleCount < 1) || (maxArticleCount > LIMIT) )
 	{
-	    String line = reader.readLine();
-	    alles = "";
-	    while (line != null)
-	    {
-		alles += line;
-		line = reader.readLine();
-	    }
-	} catch (IOException e)
-	{
-	    GeneralCommunicationException ex = new GeneralCommunicationException("Problem occured by reading the response string of buffered reader inside getArticlesNear(" + coordinates + ", " + radiusInMeter + ").", e);
-	    log.error(ex.getLoggingString());
-	    throw ex;
+	    maxArticleCount = LIMIT;
 	}
-
-	CloudantQueryResponse articles;
+	
+	CloudantGeoSearchStream stream = new CloudantGeoSearchStream(baseURL, coordinates, radiusInMeter, client);
 	try
 	{
-	    Gson gson = new Gson();
-	    Type type = new TypeToken<CloudantQueryResponse>()
-	    {
-	    }.getType();
-	    articles = gson.fromJson(alles, type);
-	} catch (JsonSyntaxException e)
+	   return mapper.mapToArticleEntityList(stream);
+	} catch (IOException ex)
 	{
-	    GeneralCommunicationException ex = new GeneralCommunicationException("Problem occured by parsing the response JSON inside getArticlesNear(" + coordinates + ", " + radiusInMeter + "): " + alles, e);
-	    log.error(ex.getLoggingString());
-	    throw ex;
+	    GeneralCommunicationException e = new GeneralCommunicationException("Unexpected IO-exception by trying to communicate with cloudant in method getArticlesNear.", ex);
+	    log.error(e.getLoggingString());
+	    throw e;
+	} catch (JSONParseException ex)
+	{
+	    GeneralCommunicationException e = new GeneralCommunicationException("There was an unexpected JSON parse exception by trying to parse response from cloudant.", ex);
+	    log.error(e.getLoggingString());
+	    throw e;
 	}
+    }
 
-	return mapper.mapToArticleEntityList(articles.getFeatures());
+    @Override
+    public Integer getProviderBasedLimit()
+    {
+	return LIMIT;
     }
 
 }

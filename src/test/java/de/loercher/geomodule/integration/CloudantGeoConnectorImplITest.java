@@ -15,10 +15,13 @@ import de.loercher.geomodule.commons.exception.ArticleConflictException;
 import de.loercher.geomodule.commons.exception.ArticleNotFoundException;
 import de.loercher.geomodule.commons.exception.GeneralCommunicationException;
 import de.loercher.geomodule.commons.exception.RevisionPreconditionFailedException;
+import de.loercher.geomodule.commons.exception.TooManyResultsException;
 import de.loercher.geomodule.connector.IdentifiedArticleEntity;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -110,7 +113,7 @@ public class CloudantGeoConnectorImplITest
 	assertEquals("Title has changed!", title, resultEntity.getTitle());
 	assertEquals("Coordinates have changed!", FRANKFURT, resultEntity.getCoord());
 	assertEquals("Reference should match id!", id, resultEntity.getReference());
-	
+
 	/**
 	 * Check if duplicate is detected using saveArticle
 	 */
@@ -128,20 +131,21 @@ public class CloudantGeoConnectorImplITest
 	{
 	    fail("There happend an GeneralCommunication exception!");
 	}
-	
+
 	/**
 	 * Check if wrong revision number is detected
 	 */
 	// well formed cloudant revision number
 	String revision = "1-87a130b51cc32a84a6405c47c76c8713";
-	
+
 	/**
-	 * Check if update with not available article id gets the expected exception
+	 * Check if update with not available article id gets the expected
+	 * exception
 	 */
 	ArticleEntity secondEntity = new ArticleEntity.ArticleEntityBuilder()
 		.coordinate(BERLIN)
 		.build();
-	
+
 	try
 	{
 	    connector.updateArticle(secondEntity, id, revision);
@@ -258,7 +262,7 @@ public class CloudantGeoConnectorImplITest
 	List<IdentifiedArticleEntity> result = null;
 	try
 	{
-	    result = connector.getArticlesNear(LUDWIGSBURG, 12100);
+	    result = connector.getArticlesNear(LUDWIGSBURG, 12100, -1);
 
 	    for (IdentifiedArticleEntity article : result)
 	    {
@@ -269,6 +273,8 @@ public class CloudantGeoConnectorImplITest
 	    }
 
 	    assertFalse("Entry shouldn't have been found in testNearMethod!", found);
+	} catch (TooManyResultsException ex)
+	{
 	} catch (GeneralCommunicationException ex)
 	{
 	    fail("There was a general exception");
@@ -276,7 +282,7 @@ public class CloudantGeoConnectorImplITest
 
 	try
 	{
-	    result = connector.getArticlesNear(LUDWIGSBURG, 11900);
+	    result = connector.getArticlesNear(LUDWIGSBURG, 11900, -1);
 	    found = false;
 
 	    for (IdentifiedArticleEntity article : result)
@@ -288,6 +294,9 @@ public class CloudantGeoConnectorImplITest
 	    }
 
 	    assertTrue("Entry shouldn't have been found in testNearMethod!", found);
+	} catch (TooManyResultsException ex)
+	{
+	    fail("There was a TooManyResultsException exception");
 	} catch (GeneralCommunicationException ex)
 	{
 	    fail("There was a general exception");
@@ -300,14 +309,15 @@ public class CloudantGeoConnectorImplITest
 	String id = "belasdfons";
 	// well formed cloudant revision number
 	String revision = "1-87a130b51cc32a84a6405c47c76c8713";
-	
+
 	/**
-	 * Check if update with not available article id gets the expected exception
+	 * Check if update with not available article id gets the expected
+	 * exception
 	 */
 	ArticleEntity entity = new ArticleEntity.ArticleEntityBuilder()
 		.coordinate(BERLIN)
 		.build();
-	
+
 	try
 	{
 	    connector.updateArticle(entity, id, revision);

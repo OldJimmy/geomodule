@@ -10,6 +10,7 @@ import de.loercher.geomodule.commons.exception.RevisionPreconditionFailedExcepti
 import de.loercher.geomodule.commons.Coordinate;
 import de.loercher.geomodule.commons.exception.ArticleConflictException;
 import de.loercher.geomodule.commons.exception.GeneralCommunicationException;
+import de.loercher.geomodule.commons.exception.TooManyResultsException;
 import java.util.List;
 
 /**
@@ -18,14 +19,11 @@ import java.util.List;
  */
 public interface GeoConnector
 {
-
+    public Integer getProviderBasedLimit();
+    
     public ArticleIdentifier addArticle(ArticleEntity article) throws ArticleConflictException, GeneralCommunicationException;
-
     public ArticleIdentifier updateArticle(ArticleEntity article, String id, String revision) throws RevisionPreconditionFailedException, GeneralCommunicationException;
-
     public ArticleIdentifier saveArticle(ArticleEntity article, String id) throws ArticleConflictException, GeneralCommunicationException;
-
     public IdentifiedArticleEntity getArticle(String id) throws ArticleNotFoundException, GeneralCommunicationException;
-
-    public List<IdentifiedArticleEntity> getArticlesNear(Coordinate coordinates, Integer radiusInMeter) throws GeneralCommunicationException;
+    public List<IdentifiedArticleEntity> getArticlesNear(Coordinate coordinates, Integer radiusInMeter, Integer maxArticleCount) throws GeneralCommunicationException, TooManyResultsException;
 }

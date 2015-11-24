@@ -20,6 +20,13 @@ public class GeneralGeoModuleException extends Exception
     private Date time;
     private String error;
 
+    public GeneralGeoModuleException(String pError)
+    {
+	uuid = UUID.randomUUID().toString();
+	time = new Date();
+	error = pError;
+    }
+    
     /**
      * Create a GeneralGeoModuleException with a string and the throwable. The constructor will 
      * generate a UUID by which you can match the log entry to the exception thrown by using 

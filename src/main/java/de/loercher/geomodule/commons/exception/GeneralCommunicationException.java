@@ -18,6 +18,13 @@ public class GeneralCommunicationException extends Exception
     private String uuid;
     private Date time;
     private String error;
+    
+    public GeneralCommunicationException(String pError)
+    {
+	uuid = UUID.randomUUID().toString();
+	time = new Date();
+	error = pError;
+    }
 
     public GeneralCommunicationException(String pError, Throwable e)
     {
