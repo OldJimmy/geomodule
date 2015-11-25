@@ -15,10 +15,9 @@ import java.util.UUID;
  */
 public class GeneralGeoModuleException extends Exception
 {
-
-    private String uuid;
-    private Date time;
-    private String error;
+    protected String uuid;
+    protected Date time;
+    protected String error;
 
     public GeneralGeoModuleException(String pError)
     {

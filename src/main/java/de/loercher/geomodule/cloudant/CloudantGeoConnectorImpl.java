@@ -193,6 +193,14 @@ public class CloudantGeoConnectorImpl implements GeoConnector
 	CloudantGeoSearchStream stream = new CloudantGeoSearchStream(baseURL, coordinates, radiusInMeter, client);
 	try
 	{
+	   List<IdentifiedArticleEntity> result = mapper.mapToArticleEntityList(stream);
+	   Integer size = result.size();
+	   
+	   if (size > maxArticleCount)
+	   {
+	       throw new TooManyResultsException(size, maxArticleCount);
+	   }
+	    
 	   return mapper.mapToArticleEntityList(stream);
 	} catch (IOException ex)
 	{

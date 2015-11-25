@@ -9,7 +9,6 @@ import com.cloudant.client.api.CloudantClient;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 import de.loercher.geomodule.commons.Coordinate;
-import de.loercher.geomodule.commons.exception.GeneralCommunicationException;
 import de.loercher.geomodule.commons.exception.JSONParseException;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -39,8 +38,8 @@ public class CloudantGeoSearchStream
     private boolean hasNext = true;
 
     private final CloudantClient client;
-    private List<CloudantArticleEntity> bufferedEntities = new ArrayList<>();
-    private List<String> alreadyAvailableIds = new ArrayList<>();
+    private final List<CloudantArticleEntity> bufferedEntities = new ArrayList<>();
+    private final List<String> alreadyAvailableIds = new ArrayList<>();
 
     public CloudantGeoSearchStream(String pBaseURL, Coordinate pCoordinates, Integer pRadiusInMeter, CloudantClient pClient)
     {
@@ -60,7 +59,9 @@ public class CloudantGeoSearchStream
 	StringBuilder urlBuilder = builder.append(baseURL)
 		.append("?lat=").append(latitude)
 		.append("&lon=").append(longitude)
-		.append("&radius=").append(radiusInMeter)
+		// workaround on bug 56377 from cloudant where radius doesn't work properly
+		.append("&rangex=").append(radiusInMeter)
+		.append("&rangey=").append(radiusInMeter)
 		.append("&format=geojson&include_docs=true&relation=contains");
 
 	if (bookmark != null)
