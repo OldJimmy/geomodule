@@ -8,9 +8,6 @@ package de.loercher.geomodule.cloudant;
 import com.cloudant.client.api.CloudantClient;
 import com.cloudant.client.api.Database;
 import com.cloudant.client.api.model.Response;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 import de.loercher.geomodule.connector.ArticleEntity;
 import de.loercher.geomodule.commons.Coordinate;
 import de.loercher.geomodule.connector.GeoConnector;
@@ -23,27 +20,19 @@ import de.loercher.geomodule.commons.exception.RevisionPreconditionFailedExcepti
 import de.loercher.geomodule.commons.exception.TooManyResultsException;
 import de.loercher.geomodule.connector.ArticleIdentifier;
 import de.loercher.geomodule.connector.IdentifiedArticleEntity;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.lightcouch.CouchDbException;
 import org.lightcouch.DocumentConflictException;
 import org.lightcouch.NoDocumentException;
 import org.lightcouch.PreconditionFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CloudantGeoConnectorImpl implements GeoConnector
 {
 
@@ -65,6 +54,7 @@ public class CloudantGeoConnectorImpl implements GeoConnector
 
     private final CloudantArticleEntityMapperImpl mapper;
 
+    @Autowired
     public CloudantGeoConnectorImpl(GeoModuleProperties pProperties, CloudantArticleEntityMapperImpl pMapper)
     {
 	properties = pProperties;
@@ -201,7 +191,7 @@ public class CloudantGeoConnectorImpl implements GeoConnector
 	       throw new TooManyResultsException(size, maxArticleCount);
 	   }
 	    
-	   return mapper.mapToArticleEntityList(stream);
+	   return result;
 	} catch (IOException ex)
 	{
 	    GeneralCommunicationException e = new GeneralCommunicationException("Unexpected IO-exception by trying to communicate with cloudant in method getArticlesNear.", ex);

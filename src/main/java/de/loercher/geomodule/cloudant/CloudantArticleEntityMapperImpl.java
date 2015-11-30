@@ -16,11 +16,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Jimmy
  */
+@Component
 public class CloudantArticleEntityMapperImpl implements ArticleEntityMapper<CloudantArticleEntity>
 {
 
@@ -51,6 +53,7 @@ public class CloudantArticleEntityMapperImpl implements ArticleEntityMapper<Clou
 
 	Map<String, Object> properties = new HashMap<>();
 	properties.put(AUTHORTAG, entity.getAuthor());
+	properties.put(USERTAG, entity.getUserId());
 	properties.put(CONTENTTAG, entity.getContentURL());
 	properties.put(PICTURETAG, entity.getPictureURL());
 	properties.put(SHORTTAG, entity.getShortTitle());
@@ -84,6 +87,7 @@ public class CloudantArticleEntityMapperImpl implements ArticleEntityMapper<Clou
 
 	ArticleEntity.ArticleEntityBuilder builder = new ArticleEntity.ArticleEntityBuilder();
 	ArticleEntity resultEntity = builder.author((String) props.get(AUTHORTAG))
+		.user((String) props.get(USERTAG))
 		.content((String) props.get(CONTENTTAG))
 		.picture((String) props.get(PICTURETAG))
 		.reference((String) props.get(REFERENCETAG))

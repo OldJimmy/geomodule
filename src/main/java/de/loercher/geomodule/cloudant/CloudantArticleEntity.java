@@ -24,15 +24,14 @@ import java.util.Map;
     "type": "Point"
   },
   "properties": {
-    "compnos": "142035014",
-    "domestic": false,
-    "fromdate": 1412209800000,
-    "main_crimecode": "MedAssist",
-    "naturecode": "EDP",
-    "reptdistrict": "D14",
-    "shooting": false,
-    "source": "boston"
-  },
+	"reference": "Stuttgart",
+	"author": "michi",
+	"userid": "silk14ifjis",
+	"short": "Hopfach Center",
+	"title": "testNearMethod",
+	"picture": "dearth.png",
+	"timestamp": 1447775932108
+    },
   "type": "Feature"
 }
  */

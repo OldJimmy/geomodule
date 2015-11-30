@@ -20,8 +20,6 @@ import de.loercher.geomodule.connector.IdentifiedArticleEntity;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -61,6 +59,7 @@ public class CloudantGeoConnectorImplITest
 	Timestamp now = new Timestamp(new Date().getTime());
 
 	String author = "ich";
+	String user = "ain450";
 	String content = "http://www.content.de";
 	String picture = "www.picture.de/hallo.jpg";
 	String shortTitle = "kurz";
@@ -70,6 +69,7 @@ public class CloudantGeoConnectorImplITest
 	ArticleEntity entity = new ArticleEntity.ArticleEntityBuilder()
 		.coordinate(FRANKFURT)
 		.author(author)
+		.user(user)
 		.content(content)
 		.picture(picture)
 		.shortTitle(shortTitle)
