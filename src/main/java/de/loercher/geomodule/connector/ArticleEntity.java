@@ -13,17 +13,16 @@ import de.loercher.geomodule.commons.Coordinate;
  */
 public class ArticleEntity
 {
-
     /*
 	Possible future enhancement:
 	If there are multiple coordinates of one article they share the same referenceID
 	By default the referenceID is the same as the _id.
     */ 
-    private String referenceID;
+    private String reference;
 
     private String pictureURL;
     private String author;
-    private String userID;
+    private String userURL;
     private String title;
     private String shortTitle;
     private String contentURL;
@@ -34,19 +33,19 @@ public class ArticleEntity
     {
     }
 
-    public String getUserId()
+    public String getUserURL()
     {
-	return userID;
+	return userURL;
     }
 
-    public void setUserId(String userId)
+    public void setUserURL(String userId)
     {
-	this.userID = userId;
+	this.userURL = userId;
     }
 
     public void setReferenceID(String referenceID)
     {
-	this.referenceID = referenceID;
+	this.reference = referenceID;
     }
 
     public void setPictureURL(String pictureURL)
@@ -86,7 +85,7 @@ public class ArticleEntity
     
     public String getReference()
     {
-	return referenceID;
+	return reference;
     }
     
     public Coordinate getCoord()
@@ -136,7 +135,7 @@ public class ArticleEntity
 
 	public ArticleEntityBuilder reference(String pReference)
 	{
-	    article.referenceID = pReference;
+	    article.reference = pReference;
 	    return this;
 	}
 	
@@ -154,7 +153,7 @@ public class ArticleEntity
 	
 	public ArticleEntityBuilder user(String pUserId)
 	{
-	    article.userID = pUserId;
+	    article.userURL = pUserId;
 	    return this;
 	}
 

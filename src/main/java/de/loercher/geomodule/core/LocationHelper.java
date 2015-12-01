@@ -6,11 +6,13 @@
 package de.loercher.geomodule.core;
 
 import de.loercher.geomodule.commons.Coordinate;
+import org.springframework.stereotype.Component;
 
 /**
  *
  * @author Jimmy
  */
+@Component
 public class LocationHelper
 {
 
@@ -29,7 +31,8 @@ public class LocationHelper
 	dist = dist * 60 * 1.1515;
 	dist = dist * 1.609344;
 
-	return (dist);
+	// the distance is messured in meter
+	return (dist * 1000);
     }
 
     private double deg2rad(double deg)

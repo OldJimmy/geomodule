@@ -14,12 +14,13 @@ import java.util.List;
  */
 public class GeoSearchPolicy
 {
+
     public static final Integer LAYER_COUNT = 5;
     public static final Integer MAX_RADIUS = 32000;
 
     private final List<Integer> maxRadiusTiers = new ArrayList<>();
     private final List<Layer> actualLayers = new ArrayList<>();
-    
+
     private Integer currentRadius = null;
 
     public GeoSearchPolicy()
@@ -32,7 +33,7 @@ public class GeoSearchPolicy
     private void initializeRadiusTiers()
     {
 	maxRadiusTiers.clear();
-	
+
 	maxRadiusTiers.add(MAX_RADIUS - 1000);	   //31000 
 	maxRadiusTiers.add(MAX_RADIUS / 2 - 1000); //15000
 	maxRadiusTiers.add(MAX_RADIUS / 4 - 1000);  //7000
@@ -40,7 +41,7 @@ public class GeoSearchPolicy
 	maxRadiusTiers.add(MAX_RADIUS / 16 - 1000); //1000
 	maxRadiusTiers.add(MAX_RADIUS / 32 - 1000); //0
     }
-    
+
     private void initializeActualLayer()
     {
 	for (int i = 0; i < LAYER_COUNT; i++)
@@ -52,10 +53,18 @@ public class GeoSearchPolicy
 
     private Layer getLayerByDistance(Double distance)
     {
-	if (distance < 0) throw new IllegalArgumentException("The distance cannot be less than 0!");
+	if (actualLayers.isEmpty())
+	{
+	    initializeActualLayer();
+	}
 	
-	Integer indexOfLayer = new Double(Math.log( (distance / currentRadius * 31) + 1) / Math.log(2)).intValue();
-	
+	if (distance < 0)
+	{
+	    throw new IllegalArgumentException("The distance cannot be less than 0!");
+	}
+
+	Integer indexOfLayer = new Double(Math.log((distance / currentRadius * 31 ) + 1) / Math.log(2)).intValue();
+
 	if (indexOfLayer >= actualLayers.size())
 	{
 	    throw new IllegalArgumentException("The distance of the point cannot be bigger than the max radius.");
@@ -63,18 +72,13 @@ public class GeoSearchPolicy
 	return actualLayers.get(indexOfLayer);
     }
 
-    public Double getLayerFactor(Double distance) 
+    public Double getLayerFactor(Double distance)
     {
 	return getLayerByDistance(distance).getFactor();
     }
 
-    public Integer getLayerNumber(Double distance) 
+    public Integer getLayerNumber(Double distance)
     {
-	if (actualLayers.isEmpty())
-	{
-	    initializeActualLayer();
-	}
-	
 	return getLayerByDistance(distance).getNumber();
     }
 

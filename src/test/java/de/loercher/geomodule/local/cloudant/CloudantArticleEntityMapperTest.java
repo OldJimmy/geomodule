@@ -49,7 +49,6 @@ public class CloudantArticleEntityMapperTest
 	String shortTitle = "short";
 	String title = "title";
 	Long stamp = now.getTime();
-	String revision = "Revision";
 	
 	final Double latitude = 9.555;
 	final Double longitude = 42.888;
@@ -64,16 +63,12 @@ public class CloudantArticleEntityMapperTest
 		.title(title)
 		.build();
 	
-	Coordinate coord = new Coordinate(latitude, longitude);
-	
 	CloudantArticleEntity mappedEntity = mapper.mapFromArticleEntity(entity);
 	
 	final List<Double> mappedCoords = mappedEntity.getGeometry().getCoordinates();
 	assertTrue("First element has to match to latitude (9.555), but is " + mappedCoords.get(1), latitude.equals(mappedCoords.get(1))); 
 	assertTrue("Second element has to match longitude (42.888), but is " + mappedCoords.get(0), longitude.equals(mappedCoords.get(0)));
 	
-	
-	assertEquals("Revision number wasn't mapped properly! ", revision, mappedEntity.getRev());
 	assertEquals("Author wasn't mapped properly! ", author, mappedEntity.getProperties().get(ArticleEntityMapper.AUTHORTAG));
 	assertEquals("ContentURL wasn't mapped properly! ", content, mappedEntity.getProperties().get(ArticleEntityMapper.CONTENTTAG));
 	assertEquals("PictureURL wasn't mapped properly! ", picture, mappedEntity.getProperties().get(ArticleEntityMapper.PICTURETAG));
