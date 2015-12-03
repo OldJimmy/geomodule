@@ -5,6 +5,8 @@
  */
 package de.loercher.geomodule.commons.exception;
 
+import de.loercher.geomodule.commons.Coordinate;
+
 /**
  *
  * @author Jimmy
@@ -13,6 +15,8 @@ public class TooManyResultsException extends GeneralGeoModuleException
 {
     private Integer presentCount;
     private Integer allowedCount;
+    private Coordinate coord;
+
     
     public TooManyResultsException(Integer pPresentCount, Integer pAllowedCount)
     {
@@ -37,6 +41,16 @@ public class TooManyResultsException extends GeneralGeoModuleException
 	super(pError, e);
     }
 
+    public Coordinate getCoord()
+    {
+	return coord;
+    }
+
+    public void setCoord(Coordinate coord)
+    {
+	this.coord = coord;
+    }
+    
     public Integer getPresentCount()
     {
 	return presentCount;

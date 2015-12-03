@@ -11,8 +11,16 @@ package de.loercher.geomodule.commons.exception;
  */
 public class ArticleConflictException extends GeneralGeoModuleException
 {
-    public ArticleConflictException(String pError, Throwable e)
+    private final String articleID;
+
+    public ArticleConflictException(String pError, String pArticleID, Throwable e)
     {
 	super(pError, e);
+	articleID = pArticleID;
+    }
+
+    public String getArticleID()
+    {
+	return articleID;
     }
 }

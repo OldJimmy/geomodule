@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -62,8 +61,17 @@ public class GeoController
 	helper = pHelper;
 	mapper = pMapper;
     }
+    
+    @RequestMapping(value = "/{articleID}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> deleteArticle(@PathVariable String articleID, @RequestHeader HttpHeaders headers) throws ArticleNotFoundException, RevisionPreconditionFailedException, GeneralCommunicationException
+    {
+	ArticleIdentifier id = new ArticleIdentifier(articleID, headers.getETag());
+	connector.removeArticle(id);
+	
+	return generateResponseEntity("", "There was an unexpected parsing exception in getArticle().", HttpStatus.OK, null);
+    }
 
-    @RequestMapping(value = "/{articleID}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{articleID}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getArticle(@PathVariable String articleID) throws ArticleNotFoundException, GeneralCommunicationException
     {
 	IdentifiedArticleEntity entity = connector.getArticle(articleID);

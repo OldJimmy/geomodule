@@ -11,8 +11,15 @@ package de.loercher.geomodule.commons.exception;
  */
 public class ArticleNotFoundException extends GeneralGeoModuleException
 {
-    public ArticleNotFoundException(String pError, Throwable e)
-    {
+    private final String articleID;
+
+    public ArticleNotFoundException(String pError, String pArticleID, Throwable e)    {
 	super(pError, e);
+	articleID = pArticleID;
+    }
+    
+    public String getArticleID()
+    {
+	return articleID;
     }
 }

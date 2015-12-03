@@ -12,9 +12,24 @@ package de.loercher.geomodule.commons.exception;
 public class RevisionPreconditionFailedException extends GeneralGeoModuleException
 {
 
-    public RevisionPreconditionFailedException(String pError, Throwable e)
+    private final String articleID;
+    private final String triedRevision;
+
+    public RevisionPreconditionFailedException(String pError, String pArticleID, String pTriedRevision, Throwable e)
     {
 	super(pError, e);
+	articleID = pArticleID;
+	triedRevision = pTriedRevision;
     }
-    
+
+    public String getTriedRevision()
+    {
+	return triedRevision;
+    }
+
+    public String getArticleID()
+    {
+	return articleID;
+    }
+
 }
