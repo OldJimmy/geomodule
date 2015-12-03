@@ -22,6 +22,7 @@ public class ArticleIdentifier
     public ArticleIdentifier(String pId, String pRev)
     {
 	rev = pRev;
+	id = pId;
     }
     
     public String getId()

@@ -41,9 +41,7 @@ public class LocationHelperTest
 	assertTrue("Distances using self endpoints in different order has to return same value. ", isStronglySimilar(toFrom, fromTo));
 	System.out.println(fromTo / 1000);
 	
-	assertTrue("Distance should be roundabout 1km, but is: " + fromTo + "km", isSimilar(1.0, (fromTo)));
-	
-	Coordinate newCoord = new Coordinate(48.0, 9.5);
+	assertTrue("Distance should be roundabout 1 km, but is: " + fromTo + " km", isSimilar(1000.0, (fromTo)));
 	
 	assertTrue("Distance should always be greater than 0!", helper.calculateDistance(from, to) > 0);
 	assertTrue("Distance should always be greater than 0!", helper.calculateDistance(to, from) > 0);
@@ -54,12 +52,12 @@ public class LocationHelperTest
 	to = new Coordinate(49.18169, 9.79778);
 	
 	System.out.println(helper.calculateDistance(from, to));
-	assertTrue("Distance should be roundabout 85.7394km! ", isSimilar(helper.calculateDistance(from, to), 85.7394));
+	assertTrue("Distance should be roundabout 85.7394km! ", isSimilar(helper.calculateDistance(from, to), 85739.4));
     }
     
     private boolean isSimilar(Double a, Double b)
     {
-	Double difference = a - b;
+	Double difference = Math.abs(a - b);
 	return (Math.abs(difference / (a+b)) < 0.001);
     }
     

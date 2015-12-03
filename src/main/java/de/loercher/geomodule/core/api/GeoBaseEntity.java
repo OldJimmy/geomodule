@@ -26,9 +26,20 @@ public class GeoBaseEntity
     protected String author;
 
     protected Long timestampOfPressEntry;
+    // there can be up to 3 coordinates per entry - future requirement, for the moment only one coordinate
     protected List<Coordinate> coordinates;
     
     protected GeoBaseEntity(){}
+
+    public List<Coordinate> getCoordinates()
+    {
+	return coordinates;
+    }
+
+    public void setCoordinates(List<Coordinate> coordinates)
+    {
+	this.coordinates = coordinates;
+    }
 
     public String getSelf()
     {

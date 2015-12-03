@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 
 /**
  *
@@ -41,13 +42,40 @@ public class CloudantGeoConnectorImplITest
     public CloudantGeoConnectorImplITest()
     {
     }
-
+    
     @Before
     public void setUp()
     {
 	properties = new GeoModuleProperties(new SecurityHelper());
 
 	connector = new CloudantGeoConnectorImpl(properties, new CloudantArticleEntityMapperImpl());
+	
+	String id = "Before";
+	System.out.println("UUID zu Before: " + id);
+
+	Timestamp now = new Timestamp(new Date().getTime());
+
+	String author = "ego";
+	String user = "ain450";
+	Long stamp = now.getTime();
+
+	ArticleEntity entity = new ArticleEntity.ArticleEntityBuilder()
+		.coordinate(FRANKFURT)
+		.author(author)
+		.user(user)
+		.timestamp(stamp)
+		.build();
+
+	try
+	{
+	    connector.saveArticle(entity, id);
+	} catch (ArticleConflictException | GeneralCommunicationException ex)
+	{
+	    /*
+	     Probably the point was already created in a test before
+	     */
+	}
+	
     }
 
     @Test

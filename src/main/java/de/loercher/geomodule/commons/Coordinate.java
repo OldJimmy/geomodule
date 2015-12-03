@@ -16,6 +16,8 @@ public class Coordinate
     private Double latitude;
     private Double longitude;
     
+    public Coordinate(){}
+    
     public Coordinate(Double pLatitude, Double pLongitude)
     {
 	latitude = pLatitude;
