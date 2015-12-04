@@ -22,7 +22,7 @@ public class ArticleEntity
 
     private String pictureURL;
     private String author;
-    private String userURL;
+    private String userID;
     private String title;
     private String shortTitle;
     private String contentURL;
@@ -33,14 +33,14 @@ public class ArticleEntity
     {
     }
 
-    public String getUserURL()
+    public String getUserID()
     {
-	return userURL;
+	return userID;
     }
 
-    public void setUserURL(String userId)
+    public void setUserID(String userId)
     {
-	this.userURL = userId;
+	this.userID = userId;
     }
 
     public void setReferenceID(String referenceID)
@@ -153,7 +153,7 @@ public class ArticleEntity
 	
 	public ArticleEntityBuilder user(String pUserId)
 	{
-	    article.userURL = pUserId;
+	    article.userID = pUserId;
 	    return this;
 	}
 

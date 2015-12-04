@@ -216,7 +216,7 @@ public class CloudantGeoConnectorImpl implements GeoConnector
 	try
 	{
 	    db.remove(id, rev);
-	} catch (DocumentConflictException | PreconditionFailedException ex)
+	} catch (DocumentConflictException | PreconditionFailedException | IllegalArgumentException ex)
 	{
 	    RevisionPreconditionFailedException e = new RevisionPreconditionFailedException("Revision of article " + id + " is: " + rev + " but should have had another value! ", id, rev, ex);
 	    log.warn(e.getLoggingString());

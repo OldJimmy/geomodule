@@ -53,7 +53,7 @@ public class CloudantArticleEntityMapperImpl implements ArticleEntityMapper<Clou
 
 	Map<String, Object> properties = new HashMap<>();
 	properties.put(AUTHORTAG, entity.getAuthor());
-	properties.put(USERTAG, entity.getUserURL());
+	properties.put(USERTAG, entity.getUserID());
 	properties.put(CONTENTTAG, entity.getContentURL());
 	properties.put(PICTURETAG, entity.getPictureURL());
 	properties.put(SHORTTAG, entity.getShortTitle());

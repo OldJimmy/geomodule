@@ -13,6 +13,7 @@ import de.loercher.geomodule.commons.exception.ArticleNotFoundException;
 import de.loercher.geomodule.commons.exception.GeneralCommunicationException;
 import de.loercher.geomodule.commons.exception.RevisionPreconditionFailedException;
 import de.loercher.geomodule.commons.exception.TooManyResultsException;
+import de.loercher.geomodule.commons.exception.UnauthorizedException;
 import de.loercher.geomodule.connector.ArticleEntity;
 import de.loercher.geomodule.connector.ArticleIdentifier;
 import de.loercher.geomodule.connector.GeoConnector;
@@ -20,10 +21,15 @@ import de.loercher.geomodule.connector.IdentifiedArticleEntity;
 import de.loercher.geomodule.core.GeoSearchEntityMapper;
 import de.loercher.geomodule.core.GeoSearchPolicy;
 import de.loercher.geomodule.core.LocationHelper;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -61,14 +67,26 @@ public class GeoController
 	helper = pHelper;
 	mapper = pMapper;
     }
-    
+
     @RequestMapping(value = "/{articleID}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> deleteArticle(@PathVariable String articleID, @RequestHeader HttpHeaders headers) throws ArticleNotFoundException, RevisionPreconditionFailedException, GeneralCommunicationException
+    public ResponseEntity<String> deleteArticle(@PathVariable String articleID, @RequestHeader HttpHeaders headers) throws ArticleNotFoundException, RevisionPreconditionFailedException, GeneralCommunicationException, UnauthorizedException
     {
 	ArticleIdentifier id = new ArticleIdentifier(articleID, headers.getETag());
+	//first we have to check whether the user is allowed to delete the article
+	IdentifiedArticleEntity entity = connector.getArticle(articleID);
+
+	String userID = headers.getFirst("UserID");
+	if ((userID == null) || !(userID.equals(entity.getEntity().getUserID())))
+	{
+	    throw new UnauthorizedException("User with ID " + userID + " is not authorized to delete article with ID " + articleID + ".", articleID, userID);
+	}
+
 	connector.removeArticle(id);
-	
-	return generateResponseEntity("", "There was an unexpected parsing exception in getArticle().", HttpStatus.OK, null);
+
+	Map<String, Object> result = generateResultMap(id.getId(), null);
+	result.put("message", "Article deleted.");
+
+	return generateResponseEntity(result, "There was an unexpected parsing exception in getArticle().", HttpStatus.OK, null);
     }
 
     @RequestMapping(value = "/{articleID}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -76,7 +94,7 @@ public class GeoController
     {
 	IdentifiedArticleEntity entity = connector.getArticle(articleID);
 	GeoBaseEntity result = mapper.mapFromArticleEntity(entity);
-	
+
 	HttpHeaders responseHeaders = new HttpHeaders();
 	responseHeaders.add("ETag", entity.getRev());
 
@@ -84,17 +102,39 @@ public class GeoController
     }
 
     @RequestMapping(value = "/{articleID}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updateArticle(@PathVariable String articleID, @RequestBody GeoBaseEntity entity, @RequestHeader HttpHeaders headers) throws ArticleConflictException, GeneralCommunicationException, RevisionPreconditionFailedException
+    public ResponseEntity<String> updateArticle(@PathVariable String articleID, @RequestBody GeoBaseEntity entity, @RequestHeader HttpHeaders headers) throws ArticleConflictException, GeneralCommunicationException, RevisionPreconditionFailedException, UnauthorizedException
     {
+	if (StringUtils.isEmpty(entity.getUser()))
+	{
+	    throw new IllegalArgumentException("The added article entity has to carry a userid.");
+	}
+
 	ArticleEntity article = mapper.mapToArticleEntity(entity);
+
+	try
+	{
+	    IdentifiedArticleEntity storedEntity;
+	    storedEntity = connector.getArticle(articleID);
+
+	    String userID = headers.getFirst("UserID");
+	    if ((userID == null) || !(userID.equals(storedEntity.getEntity().getUserID())))
+	    {
+		throw new UnauthorizedException("User with ID " + userID + " is not authorized to delete article with ID " + articleID + ".", articleID, userID);
+	    }
+	} catch (ArticleNotFoundException ex)
+	{
+	    // it's ok to not find the article since it could be a new one
+	    log.info("No article found on update. It's likely to be a conscious decision since it's allowed to create a new article doing so.");
+	}
+
 	String etag = headers.getETag();
 
-	// It's a new entity but the URL is already defined
 	ArticleIdentifier id;
 	if (etag != null)
 	{
 	    id = connector.updateArticle(article, articleID, etag);
 	} else
+	// It's a new entity but the URL is already defined
 	{
 	    id = connector.saveArticle(article, articleID);
 	}
@@ -111,17 +151,36 @@ public class GeoController
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> addArticle(@RequestBody GeoBaseEntity entity) throws ArticleConflictException, GeneralCommunicationException
+    public ResponseEntity<String> addArticle(@RequestBody GeoBaseEntity entity, @RequestHeader HttpHeaders headers) throws ArticleConflictException, GeneralCommunicationException
     {
+	if (StringUtils.isEmpty(entity.getUser()))
+	{
+	    throw new IllegalArgumentException("The added article entity has to carry a userid.");
+
+	}
+
+	String userID = headers.getFirst("UserID");
+	if (userID == null)
+	{
+	    throw new IllegalArgumentException("There has to be set a header carrying the userid.");
+	}
+	
+	if(!userID.equals(entity.getUser()))
+	{
+	    throw new IllegalArgumentException("UserIDs of entity and header have to match.");
+	}
+
 	ArticleEntity article = mapper.mapToArticleEntity(entity);
 
 	ArticleIdentifier id = connector.addArticle(article);
-	Map<String, String> result = new HashMap<>();
+	Map<String, Object> result = generateResultMap(id.getId(), null);
 
 	String selfURL = mapper.mapIDToURL(id.getId());
 
 	result.put("self", selfURL);
 	result.put("etag", id.getRev());
+	result.put("user", userID);
+	result.put("message", "Article created.");
 
 	return generateResponseEntity(result, "There was an unexpected parsing exception in addArticle().", HttpStatus.CREATED, null);
     }
@@ -193,5 +252,18 @@ public class GeoController
 	    log.error(e.getLoggingString());
 	    throw e;
 	}
+    }
+
+    private Map<String, Object> generateResultMap(String articleID, String userID)
+    {
+	Map<String, Object> result = new LinkedHashMap<>();
+	result.put("articleID", articleID);
+	result.put("userID", userID);
+
+	Timestamp now = new Timestamp(new Date().getTime());
+	result.put("timestamp", now);
+	result.put("status", 200);
+
+	return result;
     }
 }
