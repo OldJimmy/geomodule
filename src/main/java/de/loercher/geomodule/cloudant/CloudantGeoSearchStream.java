@@ -107,13 +107,13 @@ public class CloudantGeoSearchStream
 		{
 		    Gson gson = new Gson();
 		    CloudantArticleEntity entity = gson.fromJson(reader, CloudantArticleEntity.class);
-		    
+
 		    // Duplicates should not be returned
 		    if (!(alreadyAvailableIds.contains(entity.getId())))
 		    {
 			bufferedEntities.add(entity);
 		    }
-		    
+
 		    alreadyAvailableIds.add(entity.getId());
 		}
 

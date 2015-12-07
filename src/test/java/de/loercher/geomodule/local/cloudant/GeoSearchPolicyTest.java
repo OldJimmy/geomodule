@@ -5,7 +5,7 @@
  */
 package de.loercher.geomodule.local.cloudant;
 
-import de.loercher.geomodule.core.GeoSearchPolicy;
+import de.loercher.geomodule.geosearch.exploration.DistanceSphere;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class GeoSearchPolicyTest
 {
 
-    private GeoSearchPolicy policy;
+    private DistanceSphere policy;
 
     public GeoSearchPolicyTest()
     {
@@ -26,7 +26,7 @@ public class GeoSearchPolicyTest
     @Before
     public void setUp()
     {
-	policy = new GeoSearchPolicy();
+	policy = new DistanceSphere();
     }
 
     @Test
@@ -46,7 +46,7 @@ public class GeoSearchPolicyTest
     public void testResetMethod()
     {
 	Integer first = policy.nextRadius();
-	assertEquals("The first radius should be the maximum radius!", (Integer) (GeoSearchPolicy.MAX_RADIUS - 1000), first);
+	assertEquals("The first radius should be the maximum radius!", (Integer) (DistanceSphere.MAX_RADIUS - 1000), first);
 
 	policy.nextRadius();
 	policy.nextRadius();
@@ -62,7 +62,7 @@ public class GeoSearchPolicyTest
     @Test
     public void testLayerAssignment()
     {
-	Double distance = GeoSearchPolicy.MAX_RADIUS - 1000 + 5.0;
+	Double distance = DistanceSphere.MAX_RADIUS - 1000 + 5.0;
 	System.out.println("RADIUS: " + policy.nextRadius());
 
 	try
@@ -92,17 +92,17 @@ public class GeoSearchPolicyTest
 	{
 	}
 
-	Integer effectiveMax = GeoSearchPolicy.MAX_RADIUS;
+	Integer effectiveMax = DistanceSphere.MAX_RADIUS;
 	
 	distance = (effectiveMax / 2) - 1010.0;
-	assertEquals("The layer of the distance has to be the forelast one!", (Integer) (GeoSearchPolicy.LAYER_COUNT - 2), policy.getLayerNumber(distance));
+	assertEquals("The layer of the distance has to be the forelast one!", (Integer) (DistanceSphere.LAYER_COUNT - 2), policy.getLayerNumber(distance));
 	assertTrue("The factor has to be 2!", isStronglySimilar(2.0, policy.getLayerFactor(distance)));
 
 	distance = (effectiveMax / 2) - 990.0;
-	assertEquals("The layer of the distance has to be the last one!", (Integer) (GeoSearchPolicy.LAYER_COUNT - 1), policy.getLayerNumber(distance));
+	assertEquals("The layer of the distance has to be the last one!", (Integer) (DistanceSphere.LAYER_COUNT - 1), policy.getLayerNumber(distance));
 	
 	distance = (effectiveMax / 8) - 1010.0;
-	assertEquals("The layer of the distance has to be another one!", (Integer) (GeoSearchPolicy.LAYER_COUNT - 4), policy.getLayerNumber(distance));
+	assertEquals("The layer of the distance has to be another one!", (Integer) (DistanceSphere.LAYER_COUNT - 4), policy.getLayerNumber(distance));
 	assertTrue("The factor has to be 4!", isStronglySimilar(4.0, policy.getLayerFactor(distance)));
 
 	distance = 10.0;
@@ -121,10 +121,10 @@ public class GeoSearchPolicyTest
 	}
 	
 	distance = (effectiveMax / 2) - 1100.0;
-	assertEquals("The layer of the distance has to be the last one!", (Integer) (GeoSearchPolicy.LAYER_COUNT - 1), policy.getLayerNumber(distance));
+	assertEquals("The layer of the distance has to be the last one!", (Integer) (DistanceSphere.LAYER_COUNT - 1), policy.getLayerNumber(distance));
 	
-	distance = (GeoSearchPolicy.MAX_RADIUS / 8) - 1010.0;
-	assertEquals("The layer of the distance has to be another one!", (Integer) (GeoSearchPolicy.LAYER_COUNT - 3), policy.getLayerNumber(distance));
+	distance = (DistanceSphere.MAX_RADIUS / 8) - 1010.0;
+	assertEquals("The layer of the distance has to be another one!", (Integer) (DistanceSphere.LAYER_COUNT - 3), policy.getLayerNumber(distance));
     }
     
     private boolean isStronglySimilar(Double a, Double b)

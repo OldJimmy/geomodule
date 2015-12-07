@@ -175,9 +175,9 @@ public class CloudantGeoConnectorImpl implements GeoConnector
     @Override
     public List<IdentifiedArticleEntity> getArticlesNear(Coordinate coordinates, Integer radiusInMeter, Integer maxArticleCount) throws GeneralCommunicationException, TooManyResultsException
     {
-	if ((maxArticleCount == null) || (maxArticleCount < 1) || (maxArticleCount > LIMIT))
+	if ((maxArticleCount == null) || (maxArticleCount < 1) || (maxArticleCount >= LIMIT))
 	{
-	    maxArticleCount = LIMIT;
+	    maxArticleCount = LIMIT - 1;
 	}
 
 	CloudantGeoSearchStream stream = new CloudantGeoSearchStream(baseURL, coordinates, radiusInMeter, client);

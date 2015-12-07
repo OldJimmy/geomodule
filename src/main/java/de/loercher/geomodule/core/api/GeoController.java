@@ -18,17 +18,13 @@ import de.loercher.geomodule.connector.ArticleEntity;
 import de.loercher.geomodule.connector.ArticleIdentifier;
 import de.loercher.geomodule.connector.GeoConnector;
 import de.loercher.geomodule.connector.IdentifiedArticleEntity;
-import de.loercher.geomodule.core.GeoSearchEntityMapper;
-import de.loercher.geomodule.core.GeoSearchPolicy;
-import de.loercher.geomodule.core.LocationHelper;
+import de.loercher.geomodule.geosearch.GeoSearchEntityMapper;
+import de.loercher.geomodule.geosearch.GeoSearchPolicy;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,18 +50,20 @@ public class GeoController
 {
 
     private final org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass());
+    
+    private static final Integer MAX_FIND_AROUND_RESULTS = 100;
 
     // has to be thread-safe!
     private final GeoConnector connector;
-    private final LocationHelper helper;
     private final GeoSearchEntityMapper mapper;
+    private final GeoSearchPolicy policy;
 
     @Autowired
-    public GeoController(GeoConnector pConnector, LocationHelper pHelper, GeoSearchEntityMapper pMapper)
+    public GeoController(GeoConnector pConnector, GeoSearchEntityMapper pMapper, GeoSearchPolicy pPolicy)
     {
 	connector = pConnector;
-	helper = pHelper;
 	mapper = pMapper;
+	policy = pPolicy;
     }
 
     @RequestMapping(value = "/{articleID}", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -156,7 +154,6 @@ public class GeoController
 	if (StringUtils.isEmpty(entity.getUser()))
 	{
 	    throw new IllegalArgumentException("The added article entity has to carry a userid.");
-
 	}
 
 	String userID = headers.getFirst("UserID");
@@ -186,44 +183,14 @@ public class GeoController
     }
 
     @RequestMapping(value = "", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> fetchArticlesAround(@RequestParam Double lat, @RequestParam Double lon) throws GeneralCommunicationException, TooManyResultsException
+    public ResponseEntity<String> fetchArticlesAround(@RequestParam Double lat, @RequestParam Double lon, @RequestHeader HttpHeaders headers) throws GeneralCommunicationException, TooManyResultsException
     {
+	String userID = headers.getFirst("UserID");
+	
 	Coordinate coord = new Coordinate(lat, lon);
-	GeoSearchPolicy policy = new GeoSearchPolicy();
-
-	List<IdentifiedArticleEntity> articles = getArticlesRecursively(policy, coord);
-
-	List<GeoSearchEntity> results = new ArrayList<>();
-
-	for (IdentifiedArticleEntity article : articles)
-	{
-	    Double distance = helper.calculateDistance(coord, article.getEntity().getCoord());
-	    Double factor = policy.getLayerFactor(distance);
-	    Integer layer = policy.getLayerNumber(distance);
-
-	    GeoSearchEntity entity = mapper.mapFromArticleEntity(article, layer, distance, factor);
-	    results.add(entity);
-	}
-
+	List<GeoSearchEntity> results = policy.fetchLayeredArticles(userID, coord, MAX_FIND_AROUND_RESULTS);
+	
 	return generateResponseEntity(results, "There was an unexpected parsing exception in fetchArticlesAround().", HttpStatus.OK, null);
-
-    }
-
-    private List<IdentifiedArticleEntity> getArticlesRecursively(GeoSearchPolicy policy, Coordinate coord) throws TooManyResultsException, GeneralCommunicationException
-    {
-	try
-	{
-	    return connector.getArticlesNear(coord, policy.nextRadius(), policy.getMaxResultCount());
-	} catch (TooManyResultsException e)
-	{
-	    if (policy.isLastRadius())
-	    {
-		throw e;
-	    } else
-	    {
-		return getArticlesRecursively(policy, coord);
-	    }
-	}
     }
 
     private ResponseEntity<String> generateResponseEntity(Object toSerializeObject, String errorMessage, HttpStatus status, HttpHeaders headers) throws GeneralCommunicationException

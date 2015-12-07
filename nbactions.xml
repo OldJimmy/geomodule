@@ -7,4 +7,12 @@
                 <goal>dependency:resolve</goal>
             </goals>
         </action>
+        <action>
+            <actionName>CUSTOM-maven package</actionName>
+            <displayName>maven package</displayName>
+            <goals>
+                <goal>mvn</goal>
+                <goal>package</goal>
+            </goals>
+        </action>
     </actions>

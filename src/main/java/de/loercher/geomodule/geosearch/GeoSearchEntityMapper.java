@@ -3,15 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.loercher.geomodule.core;
+package de.loercher.geomodule.geosearch;
 
 import de.loercher.geomodule.commons.Coordinate;
+import de.loercher.geomodule.commons.GeoModuleProperties;
 import de.loercher.geomodule.connector.ArticleEntity;
 import de.loercher.geomodule.connector.IdentifiedArticleEntity;
 import de.loercher.geomodule.core.api.GeoBaseEntity;
 import de.loercher.geomodule.core.api.GeoSearchEntity;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -22,11 +24,17 @@ import org.springframework.stereotype.Component;
 public class GeoSearchEntityMapper
 {
 
-    public static String BASE_URL = "http://localhost:8080/geo/";
+    public final String BASE_URL;
+    
+    @Autowired
+    public GeoSearchEntityMapper(GeoModuleProperties pProp)
+    {
+	BASE_URL = pProp.getProp().getProperty("baseUrl");
+    }
     
     public String mapIDToURL(String id)
     {
-	return BASE_URL + id;
+	return BASE_URL + "/geo/" + id;
     }
     
     public ArticleEntity mapToArticleEntity(GeoBaseEntity entity)

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.loercher.geomodule.core;
+package de.loercher.geomodule.geosearch.exploration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.List;
  *
  * @author Jimmy
  */
-public class GeoSearchPolicy
+public class DistanceSphere
 {
 
     public static final Integer LAYER_COUNT = 5;
@@ -23,7 +23,7 @@ public class GeoSearchPolicy
 
     private Integer currentRadius = null;
 
-    public GeoSearchPolicy()
+    public DistanceSphere()
     {
 	initializeRadiusTiers();
 
@@ -98,11 +98,6 @@ public class GeoSearchPolicy
     public Integer getCurrentRadius()
     {
 	return currentRadius;
-    }
-
-    public Integer getMaxResultCount()
-    {
-	return 100;
     }
 
     public boolean isLastRadius()
