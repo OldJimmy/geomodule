@@ -103,6 +103,12 @@ public class GeoSearchEntity extends GeoBaseEntity
 	    entity.user = pUser;
 	    return this;
 	}
+	
+	public EntityBuilder userModule(String pUserModule)
+	{
+	    entity.userModule = pUserModule;
+	    return this;
+	}
 
 	public EntityBuilder timestamp(Long pTimestamp)
 	{

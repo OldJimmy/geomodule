@@ -24,6 +24,8 @@ public class GeoBaseEntity
 
     protected String user;
     protected String author;
+    
+    protected String userModule;
 
     protected Long timestampOfPressEntry;
     // there can be up to 3 coordinates per entry - future requirement, for the moment only one coordinate
@@ -41,6 +43,16 @@ public class GeoBaseEntity
 	this.coordinates = coordinates;
     }
 
+    public String getUserModule()
+    {
+	return userModule;
+    }
+
+    public void setUserModule(String userModule)
+    {
+	this.userModule = userModule;
+    }
+    
     public String getSelf()
     {
 	return self;
@@ -168,6 +180,12 @@ public class GeoBaseEntity
 	public EntityBuilder user(String pUser)
 	{
 	    entity.user = pUser;
+	    return this;
+	}
+	
+	public EntityBuilder userModule(String pUserModule)
+	{
+	    entity.userModule = pUserModule;
 	    return this;
 	}
 

@@ -52,6 +52,7 @@ public class GeoSearchEntityMapper
 	builder = builder.title(entity.getTitle())
 		.author(entity.getAuthor())
 		.user(entity.getAuthor())
+		.userModule(entity.getUserModule())
 		.shortTitle(entity.getShortTitle())
 		.content(entity.getContent())
 		.timestamp(entity.getTimestampOfPressEntry())
@@ -69,10 +70,11 @@ public class GeoSearchEntityMapper
 	coords.add(coord);
 
 	GeoSearchEntity.EntityBuilder builder = new GeoSearchEntity.EntityBuilder();
-	builder = builder.self(BASE_URL + article.getId())
+	builder = builder.self(mapIDToURL(article.getId()))
 		.title(core.getTitle())
 		.author(core.getAuthor())
 		.user(core.getUserID())
+		.userModule(core.getUserModuleURL())
 		.shortTitle(core.getShortTitle())
 		.content(core.getContentURL())
 		.picture(core.getPictureURL())
@@ -94,10 +96,11 @@ public class GeoSearchEntityMapper
 	coords.add(coord);
 
 	GeoBaseEntity.EntityBuilder builder = new GeoBaseEntity.EntityBuilder();
-	builder = builder.self(BASE_URL + article.getId())
+	builder = builder.self(mapIDToURL(article.getId()))
 		.title(core.getTitle())
 		.author(core.getAuthor())
 		.user(core.getUserID())
+		.userModule(core.getUserModuleURL())
 		.shortTitle(core.getShortTitle())
 		.content(core.getContentURL())
 		.picture(core.getPictureURL())
