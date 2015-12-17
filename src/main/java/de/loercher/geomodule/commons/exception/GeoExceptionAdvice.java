@@ -68,6 +68,25 @@ public class GeoExceptionAdvice
 	return new ResponseEntity<>(objectMapper.writeValueAsString(result), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    
+    @ExceptionHandler(value = GeneralCommunicationException.class)
+    public ResponseEntity<String> generalCommunicationErrorHandler(HttpServletRequest req, GeneralCommunicationException e) throws Exception
+    {
+	log.warn("There is an unexpected error: ", e);
+
+	Map<String, Object> result = new LinkedHashMap<>();
+	result.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+	result.put("error", "Internal Server Error");
+	result.put("message", "Please try again later. If this error happens continuously plz give feedback with the specified uuid.");
+	result.put("path", getURLString(req.getRequestURI()));
+	result.put("uuid", e.getUuid());
+
+	Timestamp now = new Timestamp(new Date().getTime());
+	result.put("timestamp", now);
+
+	return new ResponseEntity<>(objectMapper.writeValueAsString(result), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     @ExceptionHandler(value = UnauthorizedException.class)
     public ResponseEntity<String> unauthorizedErrorHandler(HttpServletRequest req, UnauthorizedException e) throws Exception
     {

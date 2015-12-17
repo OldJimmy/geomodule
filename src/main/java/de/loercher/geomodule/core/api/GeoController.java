@@ -109,22 +109,6 @@ public class GeoController
 
 	ArticleEntity article = mapper.mapToArticleEntity(entity);
 
-	try
-	{
-	    IdentifiedArticleEntity storedEntity;
-	    storedEntity = connector.getArticle(articleID);
-
-	    String userID = headers.getFirst("UserID");
-	    if ((userID == null) || !(userID.equals(storedEntity.getEntity().getUserID())))
-	    {
-		throw new UnauthorizedException("User with ID " + userID + " is not authorized to delete article with ID " + articleID + ".", articleID, userID);
-	    }
-	} catch (ArticleNotFoundException ex)
-	{
-	    // it's ok to not find the article since it could be a new one
-	    log.info("No article found on update. It's likely to be a conscious decision since it's allowed to create a new article doing so.");
-	}
-
 	String etag = headers.getETag();
 
 	ArticleIdentifier id;

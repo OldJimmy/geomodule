@@ -14,7 +14,6 @@ import java.util.List;
  */
 public class GeoBaseEntity
 {
-
     protected String self;
     protected String content;
     protected String picture;
@@ -28,6 +27,8 @@ public class GeoBaseEntity
     protected String userModule;
 
     protected Long timestampOfPressEntry;
+    // TODO there should also be a ZonedDateTime of the release!
+    
     // there can be up to 3 coordinates per entry - future requirement, for the moment only one coordinate
     protected List<Coordinate> coordinates;
     
