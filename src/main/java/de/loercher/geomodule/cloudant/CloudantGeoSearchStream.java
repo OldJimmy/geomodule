@@ -76,7 +76,7 @@ public class CloudantGeoSearchStream
 	HttpResponse response = client.executeRequest(requestBase);
 
 	HttpEntity entity = response.getEntity();
-	return new BufferedReader(new InputStreamReader(entity.getContent()));
+	return new BufferedReader(new InputStreamReader(entity.getContent(), "UTF8"));
     }
 
     private void extractEntities(BufferedReader bufferedReader) throws JSONParseException
