@@ -25,6 +25,8 @@ public class GeoBaseEntity
     protected String author;
     
     protected String userModule;
+    protected String rating;
+
 
     protected Long timestampOfPressEntry;
     // TODO there should also be a ZonedDateTime of the release!
@@ -33,6 +35,16 @@ public class GeoBaseEntity
     protected List<Coordinate> coordinates;
     
     protected GeoBaseEntity(){}
+    
+    public String getRating()
+    {
+	return rating;
+    }
+
+    public void setRating(String rating)
+    {
+	this.rating = rating;
+    }
 
     public List<Coordinate> getCoordinates()
     {
@@ -151,6 +163,12 @@ public class GeoBaseEntity
 	public EntityBuilder content(String pContentURL)
 	{
 	    entity.content = pContentURL;
+	    return this;
+	}
+	
+	public EntityBuilder rating(String pRating)
+	{
+	    entity.rating = pRating;
 	    return this;
 	}
 

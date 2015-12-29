@@ -29,11 +29,23 @@ public class ArticleEntity
     private String title;
     private String shortTitle;
     private String contentURL;
+    private String ratingURL;
+
     private Long timestampOfPressEntry;
     private Coordinate coord;
 
     private ArticleEntity()
     {
+    }
+    
+    public String getRatingURL()
+    {
+	return ratingURL;
+    }
+
+    public void setRatingURL(String ratingURL)
+    {
+	this.ratingURL = ratingURL;
     }
 
     public String getUserID()
@@ -191,6 +203,12 @@ public class ArticleEntity
 	public ArticleEntityBuilder content(String pContent)
 	{
 	    article.contentURL = pContent;
+	    return this;
+	}
+	
+	public ArticleEntityBuilder rating(String pRating)
+	{
+	    article.ratingURL = pRating;
 	    return this;
 	}
 

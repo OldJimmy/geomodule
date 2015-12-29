@@ -28,4 +28,6 @@ public interface ArticleEntityMapper<T>
     public static final String TITLETAG = "title";
     public static final String REFERENCETAG = "reference";
     public static final String USERMODULETAG = "usermodule";
+    public static final String RATINGTAG = "rating";
+    
 }

@@ -55,6 +55,7 @@ public class GeoSearchEntityMapper
 		.userModule(entity.getUserModule())
 		.shortTitle(entity.getShortTitle())
 		.content(entity.getContent())
+		.rating(entity.getRating())
 		.timestamp(entity.getTimestampOfPressEntry())
 		.coordinate(coord);
 	
@@ -77,6 +78,7 @@ public class GeoSearchEntityMapper
 		.userModule(core.getUserModuleURL())
 		.shortTitle(core.getShortTitle())
 		.content(core.getContentURL())
+		.rating(core.getRatingURL())
 		.picture(core.getPictureURL())
 		.timestamp(core.getTimestampOfPressEntry())
 		.coordinates(coords)
@@ -103,6 +105,7 @@ public class GeoSearchEntityMapper
 		.userModule(core.getUserModuleURL())
 		.shortTitle(core.getShortTitle())
 		.content(core.getContentURL())
+		.rating(core.getRatingURL())
 		.picture(core.getPictureURL())
 		.timestamp(core.getTimestampOfPressEntry())
 		.coordinates(coords);

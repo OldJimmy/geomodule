@@ -73,6 +73,12 @@ public class GeoSearchEntity extends GeoBaseEntity
 	    entity.content = pContentURL;
 	    return this;
 	}
+	
+	public EntityBuilder rating(String pRatingURL)
+	{
+	    entity.rating = pRatingURL;
+	    return this;
+	}
 
 	public EntityBuilder picture(String pPictureURL)
 	{

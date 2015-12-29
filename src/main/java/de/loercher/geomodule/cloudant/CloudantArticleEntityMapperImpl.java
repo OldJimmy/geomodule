@@ -55,6 +55,7 @@ public class CloudantArticleEntityMapperImpl implements ArticleEntityMapper<Clou
 	properties.put(AUTHORTAG, entity.getAuthor());
 	properties.put(USERTAG, entity.getUserID());
 	properties.put(CONTENTTAG, entity.getContentURL());
+	properties.put(RATINGTAG, entity.getRatingURL());
 	properties.put(PICTURETAG, entity.getPictureURL());
 	properties.put(USERMODULETAG, entity.getUserModuleURL());
 	properties.put(SHORTTAG, entity.getShortTitle());
@@ -90,6 +91,7 @@ public class CloudantArticleEntityMapperImpl implements ArticleEntityMapper<Clou
 	ArticleEntity resultEntity = builder.author((String) props.get(AUTHORTAG))
 		.user((String) props.get(USERTAG))
 		.content((String) props.get(CONTENTTAG))
+		.rating((String) props.get(RATINGTAG))
 		.picture((String) props.get(PICTURETAG))
 		.reference((String) props.get(REFERENCETAG))
 		.shortTitle((String) props.get(SHORTTAG))
