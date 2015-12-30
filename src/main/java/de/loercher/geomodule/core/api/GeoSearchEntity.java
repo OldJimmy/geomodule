@@ -74,6 +74,12 @@ public class GeoSearchEntity extends GeoBaseEntity
 	    return this;
 	}
 	
+	public EntityBuilder articleID(String pArticleID)
+	{
+	    entity.articleID = pArticleID;
+	    return this;
+	}
+	
 	public EntityBuilder rating(String pRatingURL)
 	{
 	    entity.rating = pRatingURL;

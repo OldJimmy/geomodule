@@ -20,6 +20,7 @@ public interface ArticleEntityMapper<T>
     
     // author is the string to be displayed, userid the system-wide unique id for the user
     public static final String AUTHORTAG = "author";
+    public static final String ARTICLEIDTAG = "articleID";
     public static final String USERTAG = "user";
     public static final String CONTENTTAG = "content";
     public static final String PICTURETAG = "picture";

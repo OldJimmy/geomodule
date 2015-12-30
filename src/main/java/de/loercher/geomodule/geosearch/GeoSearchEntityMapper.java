@@ -51,6 +51,7 @@ public class GeoSearchEntityMapper
 	ArticleEntity.ArticleEntityBuilder builder = new ArticleEntity.ArticleEntityBuilder();
 	builder = builder.title(entity.getTitle())
 		.author(entity.getAuthor())
+		.articleID(entity.getArticleID())
 		.user(entity.getAuthor())
 		.userModule(entity.getUserModule())
 		.shortTitle(entity.getShortTitle())
@@ -78,6 +79,7 @@ public class GeoSearchEntityMapper
 		.userModule(core.getUserModuleURL())
 		.shortTitle(core.getShortTitle())
 		.content(core.getContentURL())
+		.articleID(core.getArticleID())
 		.rating(core.getRatingURL())
 		.picture(core.getPictureURL())
 		.timestamp(core.getTimestampOfPressEntry())
@@ -101,6 +103,7 @@ public class GeoSearchEntityMapper
 	builder = builder.self(mapIDToURL(article.getId()))
 		.title(core.getTitle())
 		.author(core.getAuthor())
+		.articleID(core.getArticleID())
 		.user(core.getUserID())
 		.userModule(core.getUserModuleURL())
 		.shortTitle(core.getShortTitle())

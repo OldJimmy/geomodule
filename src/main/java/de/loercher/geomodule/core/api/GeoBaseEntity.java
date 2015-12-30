@@ -15,6 +15,7 @@ import java.util.List;
 public class GeoBaseEntity
 {
     protected String self;
+    protected String articleID;
     protected String content;
     protected String picture;
 
@@ -44,6 +45,16 @@ public class GeoBaseEntity
     public void setRating(String rating)
     {
 	this.rating = rating;
+    }
+
+    public String getArticleID()
+    {
+	return articleID;
+    }
+
+    public void setArticleID(String articleID)
+    {
+	this.articleID = articleID;
     }
 
     public List<Coordinate> getCoordinates()
@@ -163,6 +174,12 @@ public class GeoBaseEntity
 	public EntityBuilder content(String pContentURL)
 	{
 	    entity.content = pContentURL;
+	    return this;
+	}
+	
+	public EntityBuilder articleID(String pArticleID)
+	{
+	    entity.articleID = pArticleID;
 	    return this;
 	}
 	
