@@ -21,7 +21,6 @@ public class ArticleEntity
 	By default the referenceID is the same as the _id.
     */ 
     private String reference;
-    private String articleID;
 
     private String pictureURL;
     private String author;
@@ -56,17 +55,6 @@ public class ArticleEntity
     public void setUserID(String userId)
     {
 	this.userID = userId;
-    }
-    
-    
-    public String getArticleID()
-    {
-	return articleID;
-    }
-
-    public void setArticleID(String articleID)
-    {
-	this.articleID = articleID;
     }
     
     public String getUserModuleURL()
@@ -190,12 +178,6 @@ public class ArticleEntity
 	public ArticleEntityBuilder user(String pUserId)
 	{
 	    article.userID = pUserId;
-	    return this;
-	}
-	
-	public ArticleEntityBuilder articleID(String pArticleID)
-	{
-	    article.articleID = pArticleID;
 	    return this;
 	}
 	
